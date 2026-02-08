@@ -15,13 +15,18 @@ pipeline {
             steps {
                 withAWS(credentials: 'aws-jenkins-creds', region: "${AWS_REGION}") {
                     sh '''
-                      docker buildx create --use --name multiarch-builder || true
+                      # Create or reuse buildx builder
+                      docker buildx inspect multiarch-builder >/dev/null 2>&1 || \
+                      docker buildx create --name multiarch-builder --use
+
+                      docker buildx use multiarch-builder
                       docker buildx inspect --bootstrap
 
+                      # Build and push Flask app image
                       docker buildx build \
                         --platform linux/amd64 \
+                        --provenance=false \
                         -t ${ECR_REPO}:${IMAGE_TAG} \
-                        -f Dockerfile \
                         --push .
                     '''
                 }
@@ -54,6 +59,9 @@ pipeline {
         }
         failure {
             echo "❌ Pipeline failed."
+        }
+        always {
+            sh 'docker system prune -f || true'
         }
     }
 }
