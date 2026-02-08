@@ -1,16 +1,12 @@
 pipeline {
-    agent {
-        docker {
-            image 'docker:27.0-cli'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+    agent any
 
     environment {
         AWS_REGION   = 'ap-southeast-2'
         ECR_REPO     = '904934038179.dkr.ecr.ap-southeast-2.amazonaws.com/flask-ci-cd'
         IMAGE_TAG    = "${BUILD_NUMBER}"
         CLUSTER_NAME = 'flask-ci-cd-cluster'
+        KUBECONFIG   = '/var/jenkins_home/.kube/eks-config'
     }
 
     stages {
@@ -35,7 +31,8 @@ pipeline {
                     sh '''
                       aws eks update-kubeconfig \
                         --region ${AWS_REGION} \
-                        --name ${CLUSTER_NAME}
+                        --name ${CLUSTER_NAME} \
+                        --kubeconfig ${KUBECONFIG}
 
                       kubectl set image deployment/flask-app \
                         flask=${ECR_REPO}:${IMAGE_TAG} \
