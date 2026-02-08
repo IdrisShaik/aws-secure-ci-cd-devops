@@ -21,7 +21,7 @@ pipeline {
                       docker buildx build \
                         --platform linux/amd64 \
                         -t ${ECR_REPO}:${IMAGE_TAG} \
-                        -f docker/Dockerfile \
+                        -f Dockerfile \
                         --push .
                     '''
                 }
