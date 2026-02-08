@@ -50,7 +50,7 @@ pipeline {
 
     post {
         success {
-            echo "✅ CI/CD completed: Image built (amd64) and deployed to EKS!"
+            echo "✅ CI/CD completed: amd64 image built and deployed to EKS!"
         }
         failure {
             echo "❌ Pipeline failed."
